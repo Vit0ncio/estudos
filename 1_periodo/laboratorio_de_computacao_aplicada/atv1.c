@@ -11,7 +11,7 @@ struct Jogadores {
 int main() {
 	struct Jogadores jogadores[3];
 	char nome[50];
-	float maior_peso;
+	float maior_peso = 0;
 	float menor_altura = 2.50;
 
 	for (int i = 0; i < 3; i++) {
