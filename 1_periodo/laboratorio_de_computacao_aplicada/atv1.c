@@ -3,8 +3,8 @@
 
 struct Jogadores {
 	int num;
-	float peso = 0;
-	float altura = 5.00;
+	float peso;
+	float altura;
 	char inicial;
 };
 
@@ -12,7 +12,7 @@ int main() {
 	struct Jogadores jogadores[3];
 	char nome[50];
 	float maior_peso = 0;
-	float menor_altura = 2.50;
+	float menor_altura = 5.00;
 
 	for (int i = 0; i < 3; i++) {
 		printf("\nNome: ");
