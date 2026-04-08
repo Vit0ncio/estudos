@@ -1,4 +1,5 @@
 #include <stdio.h>
+// #include <conio.h> OBS.: A biblioteca não pega no linux
 
 struct Jogadores {
 	int num;
@@ -45,5 +46,7 @@ int main() {
 			printf("\nNumero da camisa do jogador mais pesado: %d", jogadores[i].num);
 		}
 	}
+
+	// getch() -> Faz parte da biblioteca conio.h
 	return 0;
 }
