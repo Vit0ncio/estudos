@@ -3,8 +3,8 @@
 
 struct Jogadores {
 	int num;
-	float peso;
-	float altura;
+	float peso = 0;
+	float altura = 5.00;
 	char inicial;
 };
 
