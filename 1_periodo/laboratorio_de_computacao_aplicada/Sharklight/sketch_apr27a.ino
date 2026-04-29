@@ -1,78 +1,56 @@
-#include <Wire.h>
-#include <RTClib.h>
 #include <IRremote.h>
 
-#define PIR_PIN 7
+#define PIR_PIN 8
 #define IR_PIN 11
-#define RELE_PIN 8
+#define LED_PIN 13
 
-#define BTN_OK 0xFF38C7
-
-RTC_DS1307 rtc;
-IRrecv irrecv(IR_PIN);
-decode_results results;
+#define BTN_OK 0xE31CFF00
 
 bool luz_lig = false;
-bool modo_man = false;
 unsigned long ult_mov = 0;
-const long temp_desl = 10000;
-
-void lig_luz() {
-  digitalWrite(RELE_PIN, HIGH);
-  luz_lig = true;
-}
-
-void desl_luz() {
-  digitalWrite(RELE_PIN, LOW);
-  luz_lig = false;
-}
-
-bool hor_noturno() {
-  DateTime now = rtc.now();
-  int hora = now.hour();
-  return (hora >= 23 || hora < 6);
-}
+const long temp_apag = 3000;
+bool modo_man = false;
 
 void setup() {
   Serial.begin(9600);
   pinMode(PIR_PIN, INPUT);
-  pinMode(RELE_PIN, OUTPUT);
-  digitalWrite(RELE_PIN, LOW);
-  irrecv.enableIRIn();
-  rtc.begin();
+  pinMode(LED_PIN, OUTPUT);
+
+  IrReceiver.begin(IR_PIN, ENABLE_LED_FEEDBACK);
+
+  Serial.println("Iniciando...");
 }
 
 void loop() {
-  if (irrecv.decode(&results)) {
-    Serial.println(results.value, HEX);
+  if (IrReceiver.decode()) {
+    unsigned long codigo = IrReceiver.decodedIRData.decodedRawData;
 
-    if (results.value == BTN_OK) {
+    Serial.println(codigo, HEX);
+
+    if (codigo == BTN_OK) {
       modo_man = !modo_man;
-      
+
       if (modo_man) {
-        desl_luz();
+        luz_lig = false;
+        digitalWrite(LED_PIN, LOW);
       }
     }
-    irrecv.resume();
+    IrReceiver.resume();
   }
 
-  if (modo_man) return;
+  if (!modo_man) {
+    if (digitalRead(PIR_PIN) == HIGH) {
+      ult_mov = millis();
 
-  if (hor_noturno()) {
-    desl_luz();
-    return;
-  }
-
-  if (digitalRead(PIR_PIN) == HIGH) {
-    ult_mov = millis();
-
-    if (!luz_lig) {
-      lig_luz();
+      if (!luz_lig) {
+        luz_lig = true;
+        digitalWrite(LED_PIN, HIGH);
+      }
     }
 
-    if (luz_lig && (millis() - ult_mov >= temp_desl)) {
-      desl_luz();
+    if (luz_lig && (millis() - ult_mov >= temp_apag)) {
+      luz_lig = false;
+      digitalWrite(LED_PIN, LOW);
     }
   }
 }
-
